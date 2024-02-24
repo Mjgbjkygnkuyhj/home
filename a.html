@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="pl_8"></div>
+</body>
+<script>
+  fetch('../../new/adjustment/mohamed')
+   .then((response)=>response.json())
+   .then((json)=>
+   {
+    let o12 = document.querySelector(".pl_8");
+    o12.innerHTML = "";
+    json.forEach(S1=>{
+      console.log(S1);
+    o12.innerHTML += '<div>'+S1.matter8_3+'</div>';
+         })
+  })
+</script>
+</html>

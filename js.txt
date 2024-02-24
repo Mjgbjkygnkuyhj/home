@@ -1,0 +1,207 @@
+const selects = document.querySelectorAll("form .select"),
+options = document.querySelectorAll("form .select  .option"),
+btnGr = document.querySelectorAll("form .btn-gr input"),//mor mid
+dispBtn = document.querySelector("form .disp-info .disp"),
+chickInfo = document.querySelector("form .disp-info .check-info"),
+template = document.querySelector("form .disp-info #template"),
+sendBtn = document.querySelector("form .btn-of-info .send"),
+success = document.querySelector(".success"),
+alertCard = document.querySelector(".alert"),
+settingMenu = document.querySelector(".right-icon .menu-bar .icon"),
+presentDiv = document.querySelector(".present > div"),
+endbtn = document.querySelectorAll(".disp-info  .btn-chick input.end-chick")
+let savedSelect
+,togSel=true // if true the select is visiple else not 
+,chickedArray=[],cloneArray=[];
+let moh= document.querySelector(".ma");
+let hr=[];
+
+async function caller() {
+    const json = await this.fetch('js/hr.json')
+    .then((response)=>response.json())
+    .then((json)=>
+    {
+            json.forEach(j=>{
+                let div=document.createElement("div");
+                div.innerText=j.name;
+                document.querySelector("#select2 .option").appendChild(div)
+            })
+    }); 
+
+}
+caller();
+
+    const myTimeout = setTimeout(goy, 350);
+    function goy(){
+        // select menu
+selects.forEach(sel =>{
+    sel.addEventListener("click",(e)=>{
+        e.stopImmediatePropagation();
+        selects.forEach(sel2 => {
+            sel2.querySelector(".option").classList.add("show")
+        })
+
+        let op =sel.querySelector(".option")
+        if( savedSelect === sel && togSel){
+            op.classList.add("show")
+            togSel=false;
+            sel.querySelector("input").blur();
+        }else{
+            op.classList.remove("show")
+            togSel=true;
+            sel.querySelector("input").focus();
+        }
+        savedSelect=sel;
+    })
+})
+//option 
+options.forEach(option =>{
+    Array.from(option.children).forEach(opt =>{
+        opt.addEventListener("click",function (e){
+            e.stopImmediatePropagation()
+            if (e.target.classList.contains("block") || e.target.classList.contains("selected")) return// if the ele is blocked 
+            option.parentElement.querySelector("input").value = this.textContent;//add value to select
+            let pastSelected=this.parentElement.querySelector(".selected")// past selected ele 
+            if ( pastSelected !== null && pastSelected.classList.contains("selected")){
+                // notNULL nor have been selected befor
+                const index = chickedArray.indexOf(pastSelected);
+                if (index > -1) { // only splice array when item is found
+                chickedArray.splice(index, 1); // remove the past Selected
+                // 2nd parameter means remove one item only
+                }
+            }
+                chickedArray.push(this);// add the chosen elemnt into array 
+            option.querySelectorAll("div").forEach(oped => oped.classList.remove("selected"));// remove active from all
+            this.classList.add("selected");// add active to selected 
+                rehide(e);
+                presentDivInfo()
+                if (chickedArray.length === 4) {
+                    dispBtn.classList.remove("visiple");
+                }
+        })
+    })
+})
+
+//btn for mor mid
+btnGr.forEach(btn =>{
+    btn.addEventListener("click",(e)=>{
+        document.querySelector("form .btn-gr input.active").classList.remove("active")
+        btn.classList.add("active")
+    })
+})
+
+    }
+
+// event 
+// present info list
+sendBtn.addEventListener("click",()=>{
+    dispBtn.classList.add("visiple");
+    for (let i = 0; i < selects.length; i++) {
+        let inputText = selects[i].querySelector("input")
+        if(inputText.value === "") {
+            alertCard.classList.remove("visiple")
+            return;
+        }
+    }
+    // disaple select
+
+    cloneInfo()
+    blockSelected()
+    chickedArray = [];
+    for (let i = 0; i < selects.length; i++) { // clear select
+        let inputText = selects[i].querySelector("input")
+        inputText.value = ""
+        togSel =false;
+    }
+    success.classList.remove("visiple")
+})
+
+dispBtn.addEventListener("click", (e) =>{
+    e.stopPropagation()
+presentDiv.querySelector(".cover").classList.toggle("go")
+// presentDiv.querySelector(".room-info");
+
+})
+//reset access
+
+document.documentElement.addEventListener("click",(e)=>{
+    rehide(e);
+    presentDiv.querySelector(".cover").classList.remove("go")
+})
+
+settingMenu.addEventListener("click", (e) =>{
+    e.stopImmediatePropagation();
+    e.currentTarget.nextElementSibling.classList.toggle("show");
+})
+success.addEventListener("click",removeCard)
+alertCard.addEventListener("click",removeCard) 
+function removeCard(e){
+    e.currentTarget.classList.add("visiple");
+}
+
+
+/// function
+function rehide(e){
+    // console.log(e.target)
+        if( e.target === settingMenu.nextElementSibling || e.target === settingMenu.nextElementSibling.querySelector("h5")  ) return
+            settingMenu.nextElementSibling.classList.remove("show");
+    if(savedSelect === undefined ) return;
+    if (e.target !== savedSelect && e.target !== savedSelect.querySelector("input") && e.target !== savedSelect.querySelector(".option") ) {
+        let op=savedSelect.querySelector(".option")
+        op.classList.add("show");
+        togSel = false ;
+        savedSelect.querySelector("input").blur();
+    }
+}
+function cloneInfo(){
+    let cloneCard=template.content.children[0].cloneNode(true);
+    chickInfo.append(cloneCard);
+    let textBChick=cloneCard.querySelectorAll(".info-check p");
+    for (let i = 0; i < selects.length; i++) {
+        for (let j = 0; j < textBChick.length; j++) {
+            if( selects[i].querySelector("input").placeholder.trim() == textBChick[j].className.trim() ){ 
+                //مختصرا يحطلك القيمه الموجوده بالنص داخل تاك بكلاس له نفس 
+                //  placeholder
+                textBChick[j].textContent = selects[i].querySelector("input").value;
+                break;
+                // copy input value to the card ^_~
+            }
+        }
+    }
+    cloneArray.push({cloneCard , chickedArray});//blockاحتاج هذي الاراي علمود امسح ال
+    // console.log(cloneArray)
+    let end1=cloneCard.querySelector(".end-chick");
+    end1.addEventListener("click",endButton1)
+}
+function blockSelected(){
+    for (let i = 0; i < chickedArray.length; i++) {
+        if (chickedArray[i].classList.contains("selected") &&  (chickedArray[i].parentElement.parentElement.id  === "select4")) {// to make only selected div blocked
+            chickedArray[i].classList.add("block");// adding the after block to the option
+        }
+        chickedArray[i].classList.remove("selected");// for the look
+    }
+
+}
+
+function endButton1(e) {
+    e.stopImmediatePropagation();
+    for (let j = 0; j < cloneArray.length; j++) {
+        if (e.target === cloneArray[j].cloneCard.querySelector(".end-chick")) {
+            cloneArray[j].cloneCard.remove();
+            for (let i = 0; i < cloneArray[j].chickedArray.length; i++) {
+                    //  block علمود يمسح 
+                    console.log(cloneArray[j].chickedArray[i])
+                    cloneArray[j].chickedArray[i].classList.remove("block");
+                }
+        }
+    }
+}
+function presentDivInfo(){
+    let infoR =presentDiv.querySelector(".room-info").children
+    let as=selects[1].querySelector("input").value.split("")
+    infoR[0].textContent= selects[0].querySelector("input").value +" "+as.splice(as.indexOf("-")).join("")
+    infoR[1].textContent= selects[3].querySelector("input").value
+    // infoR[2].textContent  اسم دكتور
+    infoR[3].textContent = selects[2].querySelector("input").value +" "+as.splice(as.indexOf("-")).join("")
+    infoR[4].textContent = "الوقت بدأ المحاضرة : " +" "+new Date().toLocaleTimeString().slice(0,new Date().toLocaleTimeString().lastIndexOf(":"))
+}
